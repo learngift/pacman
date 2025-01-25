@@ -35,7 +35,7 @@ class Ghost(pygame.sprite.Sprite):
     def _is_collide(self, x, y, walls_collide_list):
         return self.rect.move(x, y).collidelist(walls_collide_list) != -1
 
-    def update(self, walls_collide_list):
+    def update(self, walls_collide_list, is_blue):
         available_moves = [k for k in self.keys if \
             not self._is_collide(*self.directions[k], walls_collide_list)]
         randomizing = len(available_moves) > 2 or self.direction == (0, 0)
@@ -55,6 +55,9 @@ class Ghost(pygame.sprite.Sprite):
         elif self.rect.x > WIDTH - self.move_speed:
             self.rect.x = 0
 
-        self.image = pygame.image.load(self.img_path + self.moving_dir + '.png')
+        if is_blue:
+            self.image = pygame.image.load('assets/ghosts/blue/up.png')
+        else:
+            self.image = pygame.image.load(self.img_path + self.moving_dir + '.png')
         self.image = pygame.transform.scale(self.image, (CHAR_SIZE, CHAR_SIZE))
         self.rect = self.image.get_rect(topleft = (self.rect.x, self.rect.y))

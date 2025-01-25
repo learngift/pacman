@@ -75,4 +75,6 @@ class Pac(pygame.sprite.Sprite):
     def update(self):
         if self.immune_time > 0:
             self.immune_time -= 1
+            if self.immune_time == 0:
+                self.status = 'idle'
         self.rect = self.image.get_rect(topleft=(self.rect.x, self.rect.y))

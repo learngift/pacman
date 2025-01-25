@@ -21,12 +21,14 @@ class World:
         self.screen = screen
         self.score = 0
         self.game_level = 1
+        self.start_level()
 
+    def start_level(self):
         self.player = pygame.sprite.GroupSingle()
         self.ghosts = pygame.sprite.Group()
         self.walls  = pygame.sprite.Group()
         self.berries= pygame.sprite.Group()
-        self.display = Display(screen)
+        self.display = Display(self.screen)
 
         for y, line in enumerate(MAP):
             for x, char in enumerate(line):
@@ -72,6 +74,9 @@ class World:
                     else:
                         self.score += 10
                     b.kill()
+                    if len(self.berries) == 0:
+                        self.game_level += 1
+                        self.start_level()
 
             reset_pos = False
             for g in self.ghosts.sprites():
@@ -82,7 +87,7 @@ class World:
                     else:
                         time.sleep(2)
                         self.player.sprite.life -= 1
-                        reset_pos = True
+                        reset_pos = self.player.sprite.life > 0
 
             if reset_pos:
                 for g in self.ghosts.sprites():
@@ -92,9 +97,18 @@ class World:
         for b in self.berries.sprites():
             b.update(self.screen)
 
-        [ ghost.update(self.walls_collide_list) for ghost in self.ghosts.sprites() ]
+        is_blue = self.player.sprite.immune_time > 0
+        [ ghost.update(self.walls_collide_list, is_blue) for ghost in self.ghosts.sprites() ]
 
         self.player.update()
         self.player.draw(self.screen)
         self.ghosts.draw(self.screen)
         self.dashboard()
+
+        if self.player.sprite.life <= 0:
+            self.display.game_over()
+            if pygame.key.get_pressed()[pygame.K_r]:
+                self.score = 0
+                self.game_level = 1
+                self.start_level()
+
